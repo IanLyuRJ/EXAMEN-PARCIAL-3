@@ -4,7 +4,7 @@
 
 #define MAX_COLUMNAS 3100
 #define FILAS_A_PROCESAR 50
-#define BUFFER_SIZE 1024*1024 //Puse una cantidad abismal porque no llegaba a cargar todo :(
+#define BUFFER_SIZE 1024*1024 //Aca le puse unn tamaño enorme porque no podia cargar todas las lineas y me estrese jiji
 
 int main() {
     const char *nombre_archivo_csv = "emails.csv";
@@ -17,7 +17,7 @@ int main() {
     char buffer[BUFFER_SIZE];
     int conteo_palabras[MAX_COLUMNAS] = {0};
     char *nombres_palabras[MAX_COLUMNAS];
-    int fila_inicio = 780; //Aqui estan los ultimos 3 digitos de mi ID 181780 jiji 
+    int fila_inicio = 780; //Aqui estan los ultimos 3 digitos de mi id 181780 jeje
     int columna_email_no = -1;
 
     if (fgets(buffer, sizeof(buffer), archivo_csv) != NULL) {
@@ -27,6 +27,9 @@ int main() {
             if (strcmp(token, "Email No.") == 0) {
                 columna_email_no = indice_columna;
             } else {
+                if (token[strcspn(token, "\r\n")] != 0) {
+                    token[strcspn(token, "\r\n")] = 0;
+                }
                 nombres_palabras[indice_columna] = strdup(token);
             }
             token = strtok(NULL, ",");
@@ -72,8 +75,9 @@ int main() {
 
     for (int i = 0; i < MAX_COLUMNAS; i++) {
         if (i != columna_email_no && nombres_palabras[i] != NULL) {
+            nombres_palabras[i][strcspn(nombres_palabras[i], "\r\n")] = 0;
             fprintf(archivo_salida, "%s, %d\n", nombres_palabras[i], conteo_palabras[i]);
-            free(nombres_palabras[i]); 
+            free(nombres_palabras[i]);
         }
     }
 
