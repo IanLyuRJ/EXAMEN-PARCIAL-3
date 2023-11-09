@@ -3,7 +3,7 @@
 #include <string.h>
 
 #define MAX_COLUMNAS 3100
-#define FILAS_A_PROCESAR 50
+#define FILAS_A_PROCESAR 51
 #define BUFFER_SIZE 1024*1024 //Aca le puse unn tamaño enorme porque no podia cargar todas las lineas y me estrese jiji
 
 int main() {
@@ -17,7 +17,7 @@ int main() {
     char buffer[BUFFER_SIZE];
     int conteo_palabras[MAX_COLUMNAS] = {0};
     char *nombres_palabras[MAX_COLUMNAS];
-    int fila_inicio = 780; //Aqui estan los ultimos 3 digitos de mi id 181780 jeje
+    int fila_inicio = 779; //Aqui estan los ultimos 3 digitos de mi id QUE ES 181780, sin embargo puse que sea -1 osea 79 para que lea bien las 50 lineas
     int columna_email_no = -1;
 
     if (fgets(buffer, sizeof(buffer), archivo_csv) != NULL) {
