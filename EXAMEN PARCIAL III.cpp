@@ -4,7 +4,7 @@
 
 #define MAX_COLUMNAS 3100
 #define FILAS_A_PROCESAR 50
-#define BUFFER_SIZE 1024*1024 
+#define BUFFER_SIZE 1024*1024 //Puse una cantidad abismal porque no llegaba a cargar todo :(
 
 int main() {
     const char *nombre_archivo_csv = "emails.csv";
@@ -17,32 +17,33 @@ int main() {
     char buffer[BUFFER_SIZE];
     int conteo_palabras[MAX_COLUMNAS] = {0};
     char *nombres_palabras[MAX_COLUMNAS];
-    int fila_inicio = 780;  
+    int fila_inicio = 780; //Aqui estan los ultimos 3 digitos de mi ID 181780 jiji 
+    int columna_email_no = -1;
 
-   
     if (fgets(buffer, sizeof(buffer), archivo_csv) != NULL) {
         char *token = strtok(buffer, ",");
         int indice_columna = 0;
         while (token && indice_columna < MAX_COLUMNAS) {
-            nombres_palabras[indice_columna++] = strdup(token);
+            if (strcmp(token, "Email No.") == 0) {
+                columna_email_no = indice_columna;
+            } else {
+                nombres_palabras[indice_columna] = strdup(token);
+            }
             token = strtok(NULL, ",");
+            indice_columna++;
         }
     } else {
-        fprintf(stderr, "No se pudo leer la primera línea del archivo CSV.\n");
         fclose(archivo_csv);
         return 1;
     }
 
- 
     for (int i = 0; i < fila_inicio; ++i) {
         if (fgets(buffer, sizeof(buffer), archivo_csv) == NULL) {
-            fprintf(stderr, "No se pudo llegar a la fila de inicio.\n");
             fclose(archivo_csv);
             return 1;
         }
     }
 
- 
     for (int i = 0; i < FILAS_A_PROCESAR; ++i) {
         if (fgets(buffer, sizeof(buffer), archivo_csv) == NULL) {
             break;  
@@ -50,8 +51,11 @@ int main() {
         char *token = strtok(buffer, ",");
         int indice_columna = 0;
         while (token && indice_columna < MAX_COLUMNAS) {
-            if (indice_columna > 0) {  
-                conteo_palabras[indice_columna - 1] += atoi(token);
+            if (indice_columna != columna_email_no) {
+                long val = strtol(token, NULL, 10);
+                if (val != 0 || (val == 0 && token[0] == '0')) { 
+                    conteo_palabras[indice_columna] += val;
+                }
             }
             token = strtok(NULL, ",");
             indice_columna++;
@@ -60,15 +64,14 @@ int main() {
 
     fclose(archivo_csv);
 
-   
     FILE *archivo_salida = fopen("181780.txt", "w");
     if (!archivo_salida) {
         perror("Error al abrir el archivo de salida");
         return 1;
     }
 
-    for (int i = 0; i < MAX_COLUMNAS - 1; i++) {
-        if (nombres_palabras[i] != NULL) {
+    for (int i = 0; i < MAX_COLUMNAS; i++) {
+        if (i != columna_email_no && nombres_palabras[i] != NULL) {
             fprintf(archivo_salida, "%s, %d\n", nombres_palabras[i], conteo_palabras[i]);
             free(nombres_palabras[i]); 
         }
@@ -79,4 +82,3 @@ int main() {
 
     return 0;
 }
-
